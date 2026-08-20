@@ -75,8 +75,8 @@ ALPACA_SECRET_KEY = os.getenv('ALPACA_SECRET_KEY', '')
 ALPACA_BASE_URL = os.getenv('ALPACA_BASE_URL', 'https://paper-api.alpaca.markets')
 
 # Paper trading (fake money) vs Live (real money)
-PAPER_TRADING = True  # Set to False for real money
-LIVE_TRADING = False  # Set to True for real money
+PAPER_TRADING = True  # Default to paper mode
+LIVE_TRADING = False  # Requires explicit environment opt-in in autotrader.py
 
 # Order execution
 ORDER_TYPE = 'market'
@@ -88,7 +88,7 @@ EXECUTION_DELAY = 0  # seconds to delay execution (for safety testing)
 # ============================================
 
 # Email
-EMAIL_ALERTS = True
+EMAIL_ALERTS = False
 EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS', '')
 EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD', '')
 SMTP_SERVER = 'smtp.gmail.com'
@@ -96,12 +96,12 @@ SMTP_PORT = 587
 
 # Discord Webhook
 DISCORD_WEBHOOK = os.getenv('DISCORD_WEBHOOK', '')
-DISCORD_ALERTS = True
+DISCORD_ALERTS = False
 
 # Telegram Bot
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN', '')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID', '')
-TELEGRAM_ALERTS = True
+TELEGRAM_ALERTS = False
 
 # SMS (Twilio)
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', '')
@@ -114,7 +114,7 @@ SMS_ALERTS = False
 # ============================================
 
 DASHBOARD_PORT = 5000
-DASHBOARD_HOST = '0.0.0.0'
+DASHBOARD_HOST = '127.0.0.1'
 DASHBOARD_UPDATE_INTERVAL = 5  # seconds
 
 # Performance tracking
@@ -166,7 +166,8 @@ API_TIMEOUT = 5  # seconds
 USE_GPU = True
 MAX_WORKERS = 4
 
-# Market hours (EST)
+# Market hours (America/New_York)
+MARKET_TIMEZONE = 'America/New_York'
 MARKET_OPEN = 9.5  # 9:30 AM
 MARKET_CLOSE = 16.0  # 4:00 PM
 TRADING_DAYS = [0, 1, 2, 3, 4]  # Monday-Friday (0-4)
@@ -180,7 +181,7 @@ RESTART_DELAY = 60  # seconds
 # ============================================
 
 # Disable trading during testing
-DRY_RUN = False  # Set to True to test without real trades
+DRY_RUN = True  # Safe default: simulate orders unless explicitly disabled
 
 # Maximum daily loss before stopping
 MAX_DAILY_LOSS_PERCENT = -0.20  # -20%
@@ -209,3 +210,7 @@ TARGET_ALLOCATION = {
     'NVDA': 0.25,
     'TSLA': 0.25
 }
+
+# Live-trading safeguard flags
+ENABLE_LIVE_TRADING = False
+LIVE_TRADING_ACKNOWLEDGEMENT = ''

@@ -1,170 +1,154 @@
-# 🚀 Gold Mine Trader - Automated AI Stock Trading System
+# Gold Mine Trader
 
-An automated stock trading system that detects "gold mine" opportunities by combining:
-- **4-Model Ensemble Learning** (Technical, Sentiment, Momentum, Trend)
-- **Real-Time News Analysis** with FinBERT sentiment detection
-- **Catalyst Detection** (earnings, partnerships, product launches)
-- **Parallel Processing** for 3-4x faster execution
-- **GPU Acceleration** for instant sentiment analysis
+Gold Mine Trader is a paper-trading-first automation layer around the existing detector logic from the notebook. It keeps the detector/configuration shape compatible while adding:
 
-## Quick Start (Google Colab)
+- scheduled market-hours scanning
+- Alpaca paper/live execution guardrails
+- stop-loss / take-profit position management
+- volatility, momentum, trend, volume, and support/resistance research metrics
+- SQLite trade and performance logging
+- Discord / Telegram / email notifications
+- a mobile-friendly read-only dashboard plus JSON API
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/zakdavies2007-hue/gold-mine-trader/blob/main/gold_mine_trader.ipynb)
+## Safety defaults
 
-**Just click the button above to launch in Google Colab!**
+- `TRADING_MODE=paper` by default
+- `DRY_RUN=true` by default
+- live trading is blocked unless all live-trading safeguards are explicitly enabled
+- missing Alpaca credentials fail closed and prevent execution
+- the dashboard is read-only and binds to `127.0.0.1` by default
 
-## Features
+This project does **not** claim or guarantee profitability.
 
-✅ **Gold Mine Detection** - Automatically identifies breakout opportunities  
-✅ **News Analysis** - Analyzes financial news for sentiment and catalysts  
-✅ **Technical Analysis** - Moving averages, RSI, volume detection  
-✅ **Multi-Stock Scanning** - Monitor 4+ stocks simultaneously  
-✅ **Parallel Processing** - 3-4x faster than sequential  
-✅ **GPU Acceleration** - 25x faster sentiment analysis  
-✅ **Paper Trading** - Test with fake money before going live  
-✅ **Real Money Trading** - Integrate with Alpaca broker  
+## Repository layout
 
-## System Requirements
+```text
+/home/runner/work/gold-mine-trader/gold-mine-trader
+├── gold_mine_trader.ipynb   # original notebook detector
+├── gold_mine_trader.py      # extracted compatible detector module
+├── autotrader.py            # market-hours scanner and execution loop
+├── alpaca_broker.py         # Alpaca client with paper/live safeguards
+├── position_manager.py      # stop-loss / take-profit / sizing logic
+├── market_research.py       # volatility, momentum, trend, volume, S/R metrics
+├── trade_store.py           # SQLite trade + scan persistence
+├── dashboard.py             # read-only dashboard + JSON API
+├── notifications.py         # Discord / Telegram / email dispatch
+├── trading_config.py        # environment-driven runtime config
+├── config.py
+├── config_advanced.py
+└── tests/
+```
 
-- **Python 3.8+**
-- **Google Colab** (Free, with GPU)
-- **$500 minimum** capital (for live trading)
-- **Internet connection**
+## Local setup
 
-## Performance
-
-| Task | Speed | Accuracy |
-|------|-------|----------|
-| Single Stock Scan | 2-3 seconds | 68-72% |
-| 4 Stock Scan | 2-3 seconds | 65-70% |
-| Gold Mine Detection | Instant | >75% confidence |
-| Monthly Return | N/A | +5-15% expected |
-
-## What is a "Gold Mine"?
-
-A high-probability trading opportunity when:
-- ✅ News sentiment is strongly positive (FinBERT score >0.7)
-- ✅ Technical indicators confirm (moving averages, volume)
-- ✅ Catalysts detected (earnings beat, product launch, partnership)
-- ✅ All 4 models agree (ensemble confidence >0.75)
-
-## Getting Started
-
-### Option 1: Google Colab (Easiest - Recommended)
-1. Click the "Open in Colab" button above
-2. Run all cells (takes 2 minutes)
-3. See gold mines detected in real-time
-
-### Option 2: Local Setup
 ```bash
-git clone https://github.com/zakdavies2007-hue/gold-mine-trader.git
-cd gold-mine-trader
+cd /home/runner/work/gold-mine-trader/gold-mine-trader
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-python gold_mine_trader.py
+cp .env.example .env
 ```
 
-## Timeline to Live Trading
+Edit `.env` and keep the defaults unless you intentionally want to change behavior:
 
-```
-Week 1-2: Paper trading (fake money)
-          ├─ Learn how system works
-          ├─ See gold mines detected
-          └─ Validate accuracy
-
-Week 3-4: Paper trading on real market
-          ├─ Real predictions, fake money
-          ├─ Test in live conditions
-          └─ Confirm profitability
-
-Week 5-6: Go live with real money
-          ├─ Start with $500
-          ├─ Monitor daily
-          └─ Scale up if profitable
+```dotenv
+TRADING_MODE=paper
+DRY_RUN=true
+ALPACA_BASE_URL=https://paper-api.alpaca.markets
 ```
 
-## Expected Returns
+## Running
 
-| Month | Win Rate | Monthly Return | Profit |
-|-------|----------|----------------|--------|
-| 1 | 65% | +5-8% | $25-40 |
-| 2 | 65% | +5-8% | $28-44 |
-| 3 | 70% | +8-12% | $48-72 |
-| 6 | 70% | +10-15% | $100-150 |
+### Detector-only compatibility
 
-*Starting capital: $500*
+You can still use the extracted detector directly:
 
-## Configuration
-
-Edit `config.py`:
-
-```python
-# Stocks to monitor
-STOCKS = ['AAPL', 'MSFT', 'NVDA', 'TSLA']
-
-# Gold mine threshold (0-1.0)
-GOLD_MINE_THRESHOLD = 0.75
-
-# Scanning interval (seconds)
-SCAN_INTERVAL = 30
-
-# Starting capital
-CAPITAL = 500
+```bash
+python - <<'PY'
+from gold_mine_trader import GoldMineTrader
+trader = GoldMineTrader(symbol='AAPL')
+print(trader.scan_for_gold_mine())
+PY
 ```
 
-## File Structure
+### Automated scanner / paper trader
 
-```
-gold-mine-trader/
-├── README.md                    # This file
-├── requirements.txt             # Dependencies
-├── config.py                    # Configuration
-├── gold_mine_trader.py         # Main system
-└── gold_mine_trader.ipynb      # Google Colab notebook
+```bash
+python autotrader.py
 ```
 
-## How It Works
+Behavior:
 
-1. **Scan** - Check news and price data every 30 seconds
-2. **Analyze** - Run through ML models in parallel
-3. **Score** - Combine signals into gold mine score
-4. **Detect** - Alert if score >0.75
-5. **Trade** - Execute automatically
+1. validates market hours in `America/New_York`
+2. scans configured symbols on the configured interval
+3. records scans in SQLite
+4. prevents duplicate orders on repeated scans
+5. enforces max position count and daily-loss guardrails
+6. places Alpaca paper orders only when credentials and safety checks allow
+7. serves a read-only dashboard on `http://127.0.0.1:8000`
 
-## Trading Strategy
+## Environment variables
 
-**Only trade gold mines with:**
-- ✅ Score > 0.75 (high confidence)
-- ✅ Clear catalysts detected
-- ✅ Technical confirmation
-- ✅ Volume spikes
+Use `.env.example` as the source of truth. Key values:
 
-**Risk Management:**
-- Risk only 10% per trade
-- Stop loss at -5%
-- Take profit at +8-15%
+- `ALPACA_API_KEY`, `ALPACA_SECRET_KEY`
+- `TRADING_MODE=paper|live`
+- `DRY_RUN=true|false`
+- `ENABLE_LIVE_TRADING=true|false`
+- `LIVE_TRADING_ACKNOWLEDGEMENT=I_UNDERSTAND_AND_ACCEPT_LIVE_TRADING_RISK`
+- `DISCORD_WEBHOOK`
+- `TELEGRAM_TOKEN`, `TELEGRAM_CHAT_ID`
+- `EMAIL_ALERTS`, `EMAIL_ADDRESS`, `EMAIL_PASSWORD`
+
+### Live trading safeguards
+
+Live trading remains disabled unless **all** of the following are true:
+
+1. `TRADING_MODE=live`
+2. `DRY_RUN=false`
+3. `ENABLE_LIVE_TRADING=true`
+4. `LIVE_TRADING_ACKNOWLEDGEMENT=I_UNDERSTAND_AND_ACCEPT_LIVE_TRADING_RISK`
+5. `ALPACA_BASE_URL=https://api.alpaca.markets`
+6. valid Alpaca credentials are present
+
+If any requirement is missing, execution is blocked.
+
+## Dashboard and API
+
+Read-only routes:
+
+- `/`
+- `/api/summary`
+- `/api/positions`
+- `/api/trades`
+
+The dashboard is designed to be usable from a phone browser, but it should not be exposed directly on the open internet.
+
+### Safer phone access
+
+Recommended deployment pattern:
+
+1. keep `DASHBOARD_HOST=127.0.0.1`
+2. publish it through a VPN or private tunnel such as Tailscale
+3. if you use a reverse proxy, require HTTPS and authentication
+4. do not expose write endpoints; the bundled dashboard is read-only
+5. keep secrets in environment variables on the host, never in git
+
+## Notifications
+
+Notifications are optional. Missing webhook, bot, or email credentials simply disable that channel. Secrets must come from environment variables.
+
+## Validation
+
+Run the focused tests:
+
+```bash
+python -m unittest discover -s tests -v
+```
 
 ## Disclaimer
 
-⚠️ **For educational purposes only**
-
-- Trading involves significant risk of loss
-- Past performance does not guarantee future results
-- Test with paper trading first
-- Start with small capital
-- Never risk money you can't afford to lose
-- Consult a financial advisor
-
-## Next Steps
-
-1. **Click "Open In Colab"** above
-2. **Run the notebook** (2 minutes)
-3. **Watch gold mines detected** (real-time)
-4. **Run daily for 2 weeks** (paper trading)
-5. **Open Alpaca account** (when profitable)
-6. **Go live** with $500
-
----
-
-**Ready to find gold mines?**
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/zakdavies2007-hue/gold-mine-trader/blob/main/gold_mine_trader.ipynb)
+- Trading can lose money.
+- Past performance does not guarantee future results.
+- Use paper trading before considering any live deployment.
+- Review all safeguards yourself before enabling live execution.
