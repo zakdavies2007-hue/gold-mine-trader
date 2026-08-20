@@ -23,6 +23,7 @@ An automated stock trading system that detects "gold mine" opportunities by comb
 ✅ **GPU Acceleration** - 25x faster sentiment analysis  
 ✅ **Paper Trading** - Test with fake money before going live  
 ✅ **Real Money Trading** - Integrate with Alpaca broker  
+✅ **Degraded Local Mode** - Scanner, dashboard, and tests run without live data or a `.env` file
 
 ## System Requirements
 
@@ -59,9 +60,12 @@ A high-probability trading opportunity when:
 ```bash
 git clone https://github.com/zakdavies2007-hue/gold-mine-trader.git
 cd gold-mine-trader
+cp .env.example .env
 pip install -r requirements.txt
-python gold_mine_trader.py
+python autotrader.py
 ```
+
+If optional market-data or ML dependencies are unavailable, the extracted Python modules run in degraded mode and return safe placeholder results instead of placing live trades.
 
 ## Timeline to Live Trading
 
@@ -95,21 +99,18 @@ Week 5-6: Go live with real money
 
 ## Configuration
 
-Edit `config.py`:
+Copy `.env.example` to `.env` and adjust values for your environment. The Python modules also fall back to `config.py` and `config_advanced.py` for legacy notebook compatibility.
 
-```python
-# Stocks to monitor
-STOCKS = ['AAPL', 'MSFT', 'NVDA', 'TSLA']
-
-# Gold mine threshold (0-1.0)
-GOLD_MINE_THRESHOLD = 0.75
-
-# Scanning interval (seconds)
-SCAN_INTERVAL = 30
-
-# Starting capital
-CAPITAL = 500
+```bash
+cp .env.example .env
 ```
+
+Key settings include:
+- `TRADING_MODE=paper` for safe default execution
+- `DRY_RUN=true` to disable broker order placement
+- `ALPACA_BASE_URL=https://paper-api.alpaca.markets`
+- `MAX_DAILY_LOSS_PERCENT=0.05`
+- `DASHBOARD_HOST=127.0.0.1`
 
 ## File Structure
 
@@ -117,9 +118,17 @@ CAPITAL = 500
 gold-mine-trader/
 ├── README.md                    # This file
 ├── requirements.txt             # Dependencies
-├── config.py                    # Configuration
-├── gold_mine_trader.py         # Main system
-└── gold_mine_trader.ipynb      # Google Colab notebook
+├── config.py                    # Legacy notebook configuration
+├── config_advanced.py           # Advanced defaults / legacy compatibility
+├── trading_config.py            # Environment-aware runtime configuration
+├── gold_mine_trader.py          # Extracted detector stub
+├── autotrader.py                # Automated trading loop
+├── alpaca_broker.py             # Broker guardrails and execution
+├── trade_store.py               # SQLite persistence layer
+├── dashboard.py                 # Read-only local dashboard
+├── notifications.py             # Discord / Telegram / email alerts
+├── tests/                       # Unit test suite
+└── gold_mine_trader.ipynb       # Google Colab notebook
 ```
 
 ## How It Works
@@ -142,6 +151,25 @@ gold-mine-trader/
 - Risk only 10% per trade
 - Stop loss at -5%
 - Take profit at +8-15%
+- Stop trading after 5% daily account loss
+
+## Testing
+
+Run the full test suite locally with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+Tests are designed to pass without network access and without a `.env` file.
+
+## Dashboard
+
+The built-in dashboard is read-only and intended for local use.
+
+- Keep `DASHBOARD_HOST=127.0.0.1`
+- Do **not** expose it directly to the public internet
+- Use a VPN or authenticated reverse proxy for remote access
 
 ## Disclaimer
 

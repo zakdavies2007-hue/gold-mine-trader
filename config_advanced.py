@@ -183,7 +183,7 @@ RESTART_DELAY = 60  # seconds
 DRY_RUN = False  # Set to True to test without real trades
 
 # Maximum daily loss before stopping
-MAX_DAILY_LOSS_PERCENT = -0.20  # -20%
+MAX_DAILY_LOSS_PERCENT = 0.05  # 5%
 
 # Circuit breaker
 CIRCUIT_BREAKER_LOSSES = 3  # Stop after 3 consecutive losses

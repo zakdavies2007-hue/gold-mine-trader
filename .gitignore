@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+trading.db
+*.sqlite
+*.sqlite3
+trader.log
+.pytest_cache/
