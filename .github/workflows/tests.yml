@@ -1,0 +1,38 @@
+name: Tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      # Ensure tests run without a .env file and without real credentials
+      DRY_RUN: "true"
+      ALPACA_BASE_URL: "https://paper-api.alpaca.markets"
+      NEWS_API_KEY: ""
+      DISABLE_FINBERT: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install numpy pandas requests python-dotenv yfinance
+
+      - name: Run tests
+        run: |
+          python -m unittest discover -s tests -v 2>&1
+          echo "Exit code: $?"
