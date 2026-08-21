@@ -5,5 +5,5 @@ matplotlib>=3.6.0
 requests>=2.28.0
 transformers>=4.30.0
 torch>=2.0.0
-alpaca-trade-api>=2.0.0
 python-dotenv>=1.0.0
+# alpaca-trade-api is not used at runtime; Alpaca REST is called directly via requests.
